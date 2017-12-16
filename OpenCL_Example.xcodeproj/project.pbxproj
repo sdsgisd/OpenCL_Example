@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		E15E456C1FE5381D00E218D0 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E15E456B1FE5381D00E218D0 /* main.cpp */; };
-		E15E45731FE5385900E218D0 /* kernel.cl in Sources */ = {isa = PBXBuildFile; fileRef = E15E45721FE5385900E218D0 /* kernel.cl */; };
+		E15E45761FE53F7800E218D0 /* kernel.cl in Sources */ = {isa = PBXBuildFile; fileRef = E15E45741FE53F7800E218D0 /* kernel.cl */; };
+		E15E45771FE53F7800E218D0 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E15E45751FE53F7800E218D0 /* main.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,8 +25,8 @@
 
 /* Begin PBXFileReference section */
 		E15E45681FE5381D00E218D0 /* OpenCL_Example */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = OpenCL_Example; sourceTree = BUILT_PRODUCTS_DIR; };
-		E15E456B1FE5381D00E218D0 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		E15E45721FE5385900E218D0 /* kernel.cl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.opencl; path = kernel.cl; sourceTree = "<group>"; };
+		E15E45741FE53F7800E218D0 /* kernel.cl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.opencl; name = kernel.cl; path = OpenCL_Examples/kernel.cl; sourceTree = SOURCE_ROOT; };
+		E15E45751FE53F7800E218D0 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = OpenCL_Examples/main.cpp; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -59,8 +59,8 @@
 		E15E456A1FE5381D00E218D0 /* OpenCL_Example */ = {
 			isa = PBXGroup;
 			children = (
-				E15E456B1FE5381D00E218D0 /* main.cpp */,
-				E15E45721FE5385900E218D0 /* kernel.cl */,
+				E15E45741FE53F7800E218D0 /* kernel.cl */,
+				E15E45751FE53F7800E218D0 /* main.cpp */,
 			);
 			path = OpenCL_Example;
 			sourceTree = "<group>";
@@ -121,8 +121,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E15E456C1FE5381D00E218D0 /* main.cpp in Sources */,
-				E15E45731FE5385900E218D0 /* kernel.cl in Sources */,
+				E15E45771FE53F7800E218D0 /* main.cpp in Sources */,
+				E15E45761FE53F7800E218D0 /* kernel.cl in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
