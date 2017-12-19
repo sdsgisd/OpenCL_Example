@@ -16,7 +16,7 @@
 #include <chrono>
 
 template <typename Func, typename ...Args>
-void compute_time(Func &target_func,const unsigned iteration,Args...args ){
+void measure_runtime(Func &target_func,const unsigned iteration,Args...args ){
     
     
     std::chrono::system_clock::time_point  start, end;
@@ -66,18 +66,20 @@ void prepare_arrays(float * array1, float *array2,float*output,unsigned num_elem
     }
 }
 
-void add(float * input1, float *input2,float*output,unsigned num_elements){
+void add_matrix_cpu(float * input1, float *input2,float*output,unsigned num_elements){
     
-    for(int index =0;index<num_elements;++index){
-        output[index] += input1[index]+input2[index];
-        
+    int times=1;
+    for(int j=0;j<times;++j){
+        for(int j=0;j<num_elements;++j){
+            output[j] += input1[j]+input2[j];
+        }
     }
     
 }
 
-void add_array_normal(float * array1, float *array2,float*result_array_normal,unsigned n){
+void add_array_cpu(float * array1, float *array2,float*result_array_normal,unsigned n){
     
-    compute_time(add,1, array1,array2,result_array_normal,n);
+    measure_runtime(add_matrix_cpu,1, array1,array2,result_array_normal,n);
     
     const bool display_computational_results=false;
     if(display_computational_results){
@@ -142,7 +144,7 @@ int add_array_opencl(float * array1, float *array2,float*result_array_cl,unsigne
     EC(clBuildProgram(program, 1, devices, nullptr, nullptr, nullptr), "clBuildProgram");
     
     // make kernel
-    cl_kernel kernel = clCreateKernel(program, "addmatrix", &err);
+    cl_kernel kernel = clCreateKernel(program, "add_matrix_cl", &err);
     EC2("clCreateKernel");
     
     // allocate device memory
@@ -172,14 +174,16 @@ int add_array_opencl(float * array1, float *array2,float*result_array_cl,unsigne
         size_t global = n;
         EC(clEnqueueNDRangeKernel(q, kernel, 1, nullptr, &global, nullptr, 0, nullptr, nullptr), "clEnqueueNDRangeKernel");
         
+        // Read the results
+        EC(clEnqueueReadBuffer(q, device_mem_result, CL_TRUE, 0, sizeof(float) * n, result_array_cl, 0, nullptr, nullptr), "clEnqueueReadBuffer");
+        
+        
     };
     
     
-    compute_time(exec_kernel,1);
+    measure_runtime(exec_kernel,1);
     
-    // Read the results
-    EC(clEnqueueReadBuffer(q, device_mem_result, CL_TRUE, 0, sizeof(float) * n, result_array_cl, 0, nullptr, nullptr), "clEnqueueReadBuffer");
-    
+
     
     const bool display_computational_results=false;
     if(display_computational_results){
@@ -225,7 +229,7 @@ int main(int argc, const char * argv[])
     
     //Compute two ways, straightforward v.s. opencl.
     std::cout<<"Straightforwad computation:";
-    add_array_normal(array1,array2,result_array_normal,n);
+    add_array_cpu(array1,array2,result_array_normal,n);
     std::cout<<std::endl;
     std::cout<<"Via OpenCL:"<<std::endl;
     add_array_opencl(array1,array2,result_array_cl,n);
