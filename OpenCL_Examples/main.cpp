@@ -7,16 +7,15 @@
 #include <iostream>
 #include <vector>
 #include <functional>
+#include <chrono>
+
 #include <OpenCL/opencl.h>
 
-#define PLATFORM_MAX 4
-#define DEVICE_MAX 4
-
-#include <chrono>
+const unsigned MAX_PLATFORM = 4;
+const unsigned MAX_DEVICE = 4;
 
 template <typename Func, typename ...Args>
 void measure_runtime(Func &target_func,const unsigned iteration,Args...args ){
-    
     
     std::chrono::system_clock::time_point  start, end;
     start = std::chrono::system_clock::now();
@@ -32,14 +31,12 @@ void measure_runtime(Func &target_func,const unsigned iteration,Args...args ){
     
 };
 
-
 void ErrorChecker(cl_int result, const char *title)
 {
     if (result != CL_SUCCESS) {
         std::cout << "Error: " << title << "(" << result << ")\n";
     }
 }
-
 
 cl_int err = CL_SUCCESS;
 void EerrorChecker(const char *title)
@@ -92,18 +89,12 @@ void perform_via_cpu(float * array1, float *array2,float*result_array_normal,uns
 }
 
 int perform_via_opencl(float * array1, float *array2,float*result_array_cl,unsigned num_elements){
-
-    
-
-
-    
-
     
     auto exec_kernel=[&](){
         // Obtain platform.
-        cl_platform_id platforms[PLATFORM_MAX];
+        cl_platform_id platforms[MAX_PLATFORM];
         cl_uint platformCount;
-        ErrorChecker(clGetPlatformIDs(PLATFORM_MAX, platforms, &platformCount), "clGetPlatformIDs");
+        ErrorChecker(clGetPlatformIDs(MAX_PLATFORM, platforms, &platformCount), "clGetPlatformIDs");
         if (platformCount == 0) {
             std::cerr << "No platform.\n";
             exit(EXIT_FAILURE);
@@ -118,17 +109,14 @@ int perform_via_opencl(float * array1, float *array2,float*result_array_cl,unsig
             std::cout << "Platform id: " << platforms[i] << ", Vendor: " << vendor << ", Version: " << version << "\n";
         }
         
-
-        
         // Obtain devices
-        cl_device_id devices[DEVICE_MAX];
+        cl_device_id devices[MAX_DEVICE];
         cl_uint deviceCount;
-        ErrorChecker(clGetDeviceIDs(platforms[0], CL_DEVICE_TYPE_GPU, DEVICE_MAX, devices, &deviceCount), "clGetDeviceIDs");
+        ErrorChecker(clGetDeviceIDs(platforms[0], CL_DEVICE_TYPE_GPU, MAX_DEVICE, devices, &deviceCount), "clGetDeviceIDs");
         if (deviceCount == 0) {
             std::cerr << "No device.\n";
             exit(EXIT_FAILURE);
         }
-    
         
         // Display devices information
         std::cout << deviceCount << " device(s) found.\n";
@@ -138,7 +126,6 @@ int perform_via_opencl(float * array1, float *array2,float*result_array_cl,unsig
             ErrorChecker(clGetDeviceInfo(devices[i], CL_DEVICE_NAME, sizeof(name), name, &len), "clGetDeviceInfo");
             std::cout << "Device id: " << i << ", Name: " << name << "\n";
         }
-
         
         // Make context
         cl_context ctx = clCreateContext(nullptr, 1, devices, nullptr, nullptr, &err);
@@ -173,7 +160,6 @@ int perform_via_opencl(float * array1, float *array2,float*result_array_cl,unsig
         
         ErrorChecker(clSetKernelArg(kernel, 2, sizeof(cl_mem), &device_mem_result), "clSetKernelArg");
         
-        
         ErrorChecker(clSetKernelArg(kernel, 3, sizeof(int), &num_elements), "clSetKernelArg");
         
         // make command queue
@@ -186,7 +172,6 @@ int perform_via_opencl(float * array1, float *array2,float*result_array_cl,unsig
         
         // Read the results
         ErrorChecker(clEnqueueReadBuffer(q, device_mem_result, CL_TRUE, 0, sizeof(float) * num_elements, result_array_cl, 0, nullptr, nullptr), "clEnqueueReadBuffer");
-        
         
         // Release command queue
         ErrorChecker(clReleaseCommandQueue(q), "clReleaseCommandQueue");
@@ -203,13 +188,10 @@ int perform_via_opencl(float * array1, float *array2,float*result_array_cl,unsig
         // Release context
         ErrorChecker(clReleaseContext(ctx), "clReleaseContext");
         
-        
     };
-    
     
     measure_runtime(exec_kernel,1);
     
-
     const bool display_computational_results=false;
     if(display_computational_results){
         for (int i = 0; i < num_elements; i++) {
@@ -218,11 +200,9 @@ int perform_via_opencl(float * array1, float *array2,float*result_array_cl,unsig
         std::cout << "\n";
         
     }
-
     
     return EXIT_SUCCESS;
 }
-
 
 int main(int argc, const char * argv[])
 {
@@ -243,7 +223,5 @@ int main(int argc, const char * argv[])
     std::cout<<std::endl;
     std::cout<<"[Parallel Computation via OpenCL]"<<std::endl;
     perform_via_opencl(array1,array2,result_array_cl,num_elements);
-    
-    
     
 }
