@@ -3,7 +3,6 @@
 //
 //  Created by Sadashige Ishida on 12/16/17.
 //
-//  Reference (in Japanese): http://peta.okechan.net/blog/archives/2538
 
 #include <iostream>
 #include <vector>
@@ -29,7 +28,7 @@ void measure_runtime(Func &target_func,const unsigned iteration,Args...args ){
     end = std::chrono::system_clock::now();
     double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count(); //Convert time to ms.
     
-    std::cout<<elapsed<<"ms"<<std::endl;
+    std::cout<<"Computational Timing: "<<elapsed<<"ms"<<std::endl;
     
 };
 
@@ -66,10 +65,10 @@ void prepare_arrays(float * array1, float *array2,float*output,unsigned num_elem
     }
 }
 
-void add_matrix_cpu(float * input1, float *input2,float*output,unsigned num_elements){
+void add_array_cpu(float * input1, float *input2,float*output,unsigned num_elements){
     
-    int times=1;
-    for(int j=0;j<times;++j){
+    int iterations=30;
+    for(int ite=0;ite<iterations;++ite){
         for(int j=0;j<num_elements;++j){
             output[j] += input1[j]+input2[j];
         }
@@ -77,9 +76,9 @@ void add_matrix_cpu(float * input1, float *input2,float*output,unsigned num_elem
     
 }
 
-void add_array_cpu(float * array1, float *array2,float*result_array_normal,unsigned n){
+void perform_via_cpu(float * array1, float *array2,float*result_array_normal,unsigned n){
     
-    measure_runtime(add_matrix_cpu,1, array1,array2,result_array_normal,n);
+    measure_runtime(add_array_cpu,1, array1,array2,result_array_normal,n);
     
     const bool display_computational_results=false;
     if(display_computational_results){
@@ -92,7 +91,7 @@ void add_array_cpu(float * array1, float *array2,float*result_array_normal,unsig
     
 }
 
-int add_array_opencl(float * array1, float *array2,float*result_array_cl,unsigned n){
+int perform_via_opencl(float * array1, float *array2,float*result_array_cl,unsigned n){
     // Obtain platform.
     cl_platform_id platforms[PLATFORM_MAX];
     cl_uint platformCount;
@@ -144,7 +143,7 @@ int add_array_opencl(float * array1, float *array2,float*result_array_cl,unsigne
     EC(clBuildProgram(program, 1, devices, nullptr, nullptr, nullptr), "clBuildProgram");
     
     // make kernel
-    cl_kernel kernel = clCreateKernel(program, "add_matrix_cl", &err);
+    cl_kernel kernel = clCreateKernel(program, "add_array_opencl", &err);
     EC2("clCreateKernel");
     
     // allocate device memory
@@ -209,7 +208,6 @@ int add_array_opencl(float * array1, float *array2,float*result_array_cl,unsigne
     // Release context
     EC(clReleaseContext(ctx), "clReleaseContext");
     
-    std::cout << "Done.\n";
     return EXIT_SUCCESS;
 }
 
@@ -228,11 +226,11 @@ int main(int argc, const char * argv[])
     prepare_arrays(array1,array2,result_array_cl,n);
     
     //Compute two ways, straightforward v.s. opencl.
-    std::cout<<"Straightforwad computation:";
-    add_array_cpu(array1,array2,result_array_normal,n);
+    std::cout<<"[Straightforwad Computation via CPU]"<<std::endl;
+    perform_via_cpu(array1,array2,result_array_normal,n);
     std::cout<<std::endl;
-    std::cout<<"Via OpenCL:"<<std::endl;
-    add_array_opencl(array1,array2,result_array_cl,n);
+    std::cout<<"[Parallel Computation via OpenCL]"<<std::endl;
+    perform_via_opencl(array1,array2,result_array_cl,n);
     
     
     
